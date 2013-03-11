@@ -1,0 +1,2 @@
+qdbus org.kde.kded /kded unloadModule networkmanagement
+nm-applet &

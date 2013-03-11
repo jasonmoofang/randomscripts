@@ -1,0 +1,2 @@
+pkill nm-applet
+qdbus org.kde.kded /kded loadModule networkmanagement

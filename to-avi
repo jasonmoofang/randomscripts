@@ -1,0 +1,18 @@
+#!/bin/sh
+EXPECTED_ARGS=2
+E_BADARGS=65
+
+if [ $# -lt $EXPECTED_ARGS ]
+then
+  echo "Usage: to-avi <input filename> <Output filename>.avi"
+  exit $E_BADARGS
+fi
+ffmpeg -i $1 -b 2000k -acodec libmp3lame -s 800x480 $2.avi
+  #ffmpeg -i "$1" audio.wav
+  #mencoder -nosound -slang eng "$1" -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=2000 -o movie.avi
+  #mencoder -nosound -slang eng "$1" -ovc xvid -xvidencopts vhq=1:chroma_me:hq_ac:bitrate=1500 -o movie.avi
+  #mencoder -oac mp3lame -slang eng "$1" -ovc xvid -xvidencopts vhq=1:chroma_me:hq_ac:bitrate=1500 -o movie.avi
+  #mencoder movie.avi -oac mp3lame -ovc xvid -xvidencopts vhq=1:chroma_me:hq_ac:bitrate=1500 -audiofile audio.wav -o $2
+  #ffmpeg -i movie.avi -i audio.wav -b 2000k -acodec libmp3lame -s 800x480 $2
+  #mencoder movie.avi -oac mp3lame -ovc xvid -xvidencopts vhq=1:chroma_me:hq_ac:bitrate=1500 -audiofile audio.wav -o $2 
+  #rm movie.avi audio.wav

@@ -1,0 +1,177 @@
+#!/usr/bin/env python
+
+import sys
+import os
+
+import PyQt4.QtCore as QtCore
+
+import PyKDE4.kdecore as kdecore
+import PyKDE4.kdeui as kdeui
+from PyKDE4.kio import KIO
+from PyKDE4.nepomuk import Nepomuk
+from PyKDE4.soprano import Soprano
+
+#website_resource = Nepomuk.Resource(kdecore.KUrl("http://yuenhoe.com/blog/"))
+#website_resource.addType(Nepomuk.Vocabulary.NFO.Bookmark())
+#website_resource.setLabel(kdecore.KUrl("http://yuenhoe.com/blog/").prettyUrl())
+
+#res = Nepomuk.Resource(kdecore.KUrl("file:///home/lim/Documents/sketchboard/pynepo/[CoalGuys] K-ON S2 - 01 [DC424FCD].mkv"));
+#properties = res.properties();
+#for i, v in properties.iteritems():
+#	print i, v.toString();
+
+# The following is derived from Luca's kdeexample source. Copyright notice:
+# Copyright 2011 Luca Beltrame <einar@heavensinferno.net>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+# IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+# NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+class NepomukTagQueryExample(QtCore.QObject):
+
+    def __init__(self, parent=None):
+
+        super(NepomukTagQueryExample, self).__init__(parent)
+        self.results = dict()
+        self.service_client = Nepomuk.Query.QueryServiceClient()
+
+        # Gather results as they are found
+        self.service_client.newEntries.connect(self.query_client_slot)
+
+        # Ensure we disconnect after we're done
+        #self.service_client.finishedListing.connect(
+            #self.service_client.newEntries.disconnect)
+
+        # Once the query is over, we'll display the results
+        self.service_client.finishedListing.connect(self.display_results)
+
+    def display_results(self):
+
+        # get rid of duplicate items
+        results = set(self.results)
+
+        #print "Displaying search results"
+        #print
+        command = "bangarang "
+
+        i = self.episode
+        while self.results.has_key(i):
+            #print item
+            command += "\"" + self.results[i] + "\" "
+            i += 1
+
+        #print
+        #print "End results"
+        print "running " + command
+        os.system(str(command))
+        sys.exit()
+
+    def query_client_slot(self, data):
+
+        # Instead of displaying results, we add them to an
+        # internal list, because this slot is called for both
+        # the initial search and when results are added.
+
+        if not data:
+            return
+
+        for item in data:
+            # Get the file name
+            episode = item.resource().property(kdecore.KUrl('http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#episodeNumber')).toInt()
+            result = item.resource().property(kdecore.KUrl('http://www.semanticdesktop.org/ontologies/2007/01/19/nie#url')).toString() #genericLabel()
+            self.results[episode] = result
+            print "adding episode " + str(episode)
+
+    def get_next_episode(self, res):
+
+        #tag = Nepomuk.Tag(tag)
+        series = Nepomuk.Resource(kdecore.KUrl(res.property('http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#series').toString()))
+        season = res.property(kdecore.KUrl('http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#season'))
+        self.episode = res.property(kdecore.KUrl('http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#episodeNumber')).toInt()
+
+        #soprano_term_uri = Soprano.Vocabulary.NAO.hasTag()
+
+        # The API documentation on api.kde.org uses the URI directly, but
+        # under PyKDE4 generates an error, hence we wrap it in
+        # Nepomuk.Types.Property
+
+        #nepomuk_property = Nepomuk.Types.Property(soprano_term_uri)
+        #nepomuk_property = Nepomuk.Types.Property(kdecore.KUrl('http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title'))
+        season_property = Nepomuk.Types.Property(kdecore.KUrl('http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#season'))
+        series_property = Nepomuk.Types.Property(kdecore.KUrl('http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#series'))
+
+        # The actual term for the query, in this case a ComparisonTerm,
+        # because we compare our hasTag() with the actual tag
+        # The tag is wrapped in a ResourceTerm
+        and_term = Nepomuk.Query.AndTerm()
+
+        and_term.addSubTerm(Nepomuk.Query.ComparisonTerm(season_property,
+                Nepomuk.Query.LiteralTerm(Soprano.LiteralValue(season)),
+                Nepomuk.Query.ComparisonTerm.Equal))
+        and_term.addSubTerm(Nepomuk.Query.ComparisonTerm(series_property,
+                Nepomuk.Query.ResourceTerm(series),
+                Nepomuk.Query.ComparisonTerm.Equal))
+
+        # Now we make a query. We use a FileQuery since we're interested in
+        # files, but if we want more generic results we can use
+        # Nepomuk.Query.Query.
+
+        query = Nepomuk.Query.FileQuery(and_term)
+
+        # We call now the Nepomuk Query Service to execute our query
+        # asynchronously
+        self.service_client.query(query)
+
+    def query_desktop_query(self, tag):
+
+        # A simple query using Desktop Query instead of building a query
+        # For tags it's very acceptable
+
+        query = "hasTag:%s" % tag
+
+        self.service_client.desktopQuery(query)
+
+def main():
+
+    app_name = "nepomuk_tag_query_example"
+    program_name = kdecore.ki18n("Example Nepomuk tag query"
+            " application (PyKDE4)")
+    about_data = kdecore.KAboutData(QtCore.QByteArray(app_name), "",
+                                program_name, QtCore.QByteArray("0.1"))
+    kdecore.KCmdLineArgs.init(sys.argv, about_data)
+    options = kdecore.KCmdLineOptions();
+    options.add('+test');
+    kdecore.KCmdLineArgs.addCmdLineOptions(options)
+    app = kdeui.KApplication()
+    
+    print sys.argv[1]
+
+    first_test = NepomukTagQueryExample()
+    res = Nepomuk.Resource(kdecore.KUrl("file://" + sys.argv[1]));
+    first_test.get_next_episode(res)
+
+#    second_test = NepomukTagQueryExample()
+#    second_test.query_desktop_query("test_query")
+
+    QtCore.QTimer.singleShot(5000, app.quit)
+    app.exec_()
+
+if __name__ == '__main__':
+    main()

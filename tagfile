@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+import sys
+import os
+
+import PyQt4.QtCore as QtCore
+
+import PyKDE4.kdecore as kdecore
+import PyKDE4.kdeui as kdeui
+from PyKDE4.kio import KIO
+from PyKDE4.nepomuk import Nepomuk
+from PyKDE4.soprano import Soprano
+
+#website_resource = Nepomuk.Resource(kdecore.KUrl("http://yuenhoe.com/blog/"))
+#website_resource.addType(Nepomuk.Vocabulary.NFO.Bookmark())
+#website_resource.setLabel(kdecore.KUrl("http://yuenhoe.com/blog/").prettyUrl())
+
+if len(sys.argv) < 3:
+    print "usage: app <full file path> <tag to tag with>";
+else:
+    newtag = Nepomuk.Tag(sys.argv[2])
+    newtag.setLabel(sys.argv[2])
+    res = Nepomuk.Resource(kdecore.KUrl("file://" + sys.argv[1]));
+    res.addTag(newtag);
