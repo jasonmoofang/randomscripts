@@ -1,0 +1,34 @@
+[1]
+Description=Application settings for python.real
+above=true
+aboverule=3
+position=0,0
+positionrule=3
+title=NOT (Digital: A Love Story)
+titlematch=0
+wmclass=python.real
+wmclasscomplete=false
+wmclassmatch=1
+
+[2]
+Description=(Default) Disable focus stealing prevention for XV
+fsplevel=0
+fsplevelrule=2
+wmclass=^xv .*
+wmclasscomplete=true
+wmclassmatch=3
+
+[3]
+Description=Application settings for rlvm
+above=true
+aboverule=3
+position=0,0
+positionrule=3
+title=NOT (Digital: A Love Story)
+titlematch=0
+wmclass=rlvm
+wmclasscomplete=false
+wmclassmatch=1
+
+[General]
+count=3
