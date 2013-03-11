@@ -1,0 +1,8 @@
+killall wvdial
+killall rfcomm
+echo initializing modem
+rfcomm connect rfcomm0 &
+sleep 8
+echo dialling
+wvdial bt
+

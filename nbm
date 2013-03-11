@@ -1,0 +1,5 @@
+qdbus org.kde.kactivitymanagerd /ActivityManager RegisterResourceTitle "$2" "$1"
+qdbus org.kde.kactivitymanagerd /ActivityManager RegisterResourceMimeType "$2" "text/x-html"
+qdbus org.kde.NepomukStorage /datamanagement setProperty "$2" "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Bookmark" shell
+qdbus org.kde.kactivitymanagerd /ActivityManager LinkResourceToActivity "$2"
+kdialog --title "Bookmark added" --passivepopup "Added bookmark: $2" 1
