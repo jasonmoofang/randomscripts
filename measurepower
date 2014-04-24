@@ -1,0 +1,4 @@
+cd ~
+sudo /usr/sbin/powertop -html
+chromium tml.html
+rm -f tml.html
