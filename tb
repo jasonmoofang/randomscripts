@@ -1,7 +1,9 @@
 killall wvdial
 killall rfcomm
+/home/lim/bin/ns # update nameserver
 echo initializing modem
-rfcomm connect rfcomm0 &
+rfcomm connect rfcomm0 1C:E2:CC:62:21:CB &
+# rfcomm connect rfcomm0 & # new rfcomm doesn't seemm to do rfcomm.conf anymore @@
 sleep 8
 echo dialling
 wvdial bt
