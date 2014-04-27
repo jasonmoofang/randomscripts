@@ -1,0 +1,13 @@
+#!/bin/bash
+EXPECTED_ARGS=1
+E_BADARGS=65
+
+if [ $# -ne $EXPECTED_ARGS ]
+then
+  echo "Usage: suspendafter <number of seconds>"
+  exit $E_BADARGS
+fi
+
+sleep $1;
+pkill smplayer;
+qdbus org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement/Actions/SuspendSession suspendToRam;
