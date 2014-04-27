@@ -1,5 +1,3 @@
-sudo /usr/sbin/rfkill unblock 0
-sudo /usr/sbin/rfkill unblock 1
-sudo /usr/sbin/rfkill unblock 2
+sudo /usr/sbin/rfkill unblock bluetooth
 qdbus org.kde.bluedevilmonolithic /MainApplication quit
 bluedevil-monolithic &
