@@ -1,0 +1,2 @@
+xinput set-prop "Atmel Atmel maXTouch Digitizer" 'Device Enabled' 0
+xinput set-prop "Atmel Atmel maXTouch Digitizer" 'Device Enabled' 1
