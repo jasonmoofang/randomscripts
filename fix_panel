@@ -1,0 +1,2 @@
+rm /home/lim/.kde4/cache-lim-suse.site/plasma*kcache
+kquitapp plasma-desktop && plasma-desktop
